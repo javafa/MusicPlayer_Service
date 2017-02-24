@@ -2,6 +2,7 @@ package com.veryworks.android.musicplayer;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import static com.veryworks.android.musicplayer.App.PLAY;
+
 public class MainActivity extends AppCompatActivity {
 
     private final int REQ_CODE = 100;
@@ -17,13 +20,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        // 버전체크해서 마시말로우 보다 낮으면 런타임권한 체크를 하지 않는다
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkPermission();
-        } else {
-            init();
+        // 앱을 껏다가 플레이어가 실행중이면 일단 PlayerActivity로 이동한다
+        if(App.playStatus == PLAY){
+            Intent intent = new Intent(this,PlayerActivity.class);
+            intent.putExtra("position", App.position);
+            startActivity(intent);
+            finish();
+        }else {
+            setContentView(R.layout.activity_main);
+            // 버전체크해서 마시말로우 보다 낮으면 런타임권한 체크를 하지 않는다
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                checkPermission();
+            } else {
+                init();
+            }
         }
     }
 

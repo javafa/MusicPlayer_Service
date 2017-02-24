@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -14,16 +15,18 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import static com.veryworks.android.musicplayer.App.ACTION_PAUSE;
 import static com.veryworks.android.musicplayer.App.ACTION_PLAY;
-import static com.veryworks.android.musicplayer.App.STOP;
+import static com.veryworks.android.musicplayer.App.ACTION_RESTART;
 import static com.veryworks.android.musicplayer.App.PAUSE;
 import static com.veryworks.android.musicplayer.App.PLAY;
+import static com.veryworks.android.musicplayer.App.STOP;
 import static com.veryworks.android.musicplayer.App.playStatus;
 import static com.veryworks.android.musicplayer.App.player;
 import static com.veryworks.android.musicplayer.App.position;
 
 public class PlayerActivity extends AppCompatActivity {
-
+    private static final String TAG="PlayerActivity";
     ViewPager viewPager;
     ImageButton btnRew, btnPlay, btnFf;
 
@@ -92,18 +95,25 @@ public class PlayerActivity extends AppCompatActivity {
     // 컨트롤러 정보 초기화
     private void init(){
         // 뷰페이저로 이동할 경우 플레이어에 세팅된 값을 해제한후 로직을 실행한다.
-        if(player != null){
+        Log.i(TAG,"===========init().player="+player);
+
+        if(player != null && playStatus != PLAY){
             // 플레어 상태를 STOP 으로 변경
             playStatus = STOP;
             // 아이콘을 플레이 버튼으로 변경
             btnPlay.setImageResource(android.R.drawable.ic_media_play);
             player.release();
         }
+
         playerInit();
 
         controllerInit();
 
-        play();
+        if(App.playStatus != PLAY){
+            play();
+        } else {
+
+        }
     }
 
     private void playerInit(){
@@ -128,6 +138,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void play() {
         // 플레이중이 아니면 음악 실행
+        Log.i("PlayerActivity","=============play().playStatus="+playStatus);
         switch(playStatus) {
             case STOP:
                 playStart();
@@ -144,7 +155,8 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void playStart(){
-
+        Log.i("PlayerActivity","=============playStart().playStatus="+playStatus);
+        playStatus = PLAY;
         service.setAction(ACTION_PLAY); // 서비스 측으로 명령어를 보내준다.
         startService(service);
 
@@ -155,11 +167,19 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void playPause(){
+        Log.i("PlayerActivity","=============playPause().playStatus="+playStatus);
+        playStatus = PAUSE;
+        service.setAction(ACTION_PAUSE); // 서비스 측으로 명령어를 보내준다.
+        startService(service);
 
         btnPlay.setImageResource(android.R.drawable.ic_media_play);
     }
 
     private void playRestart(){
+        Log.i("PlayerActivity","=============playRestart().playStatus="+playStatus);
+        playStatus = PLAY;
+        service.setAction(ACTION_RESTART); // 서비스 측으로 명령어를 보내준다.
+        startService(service);
 
         btnPlay.setImageResource(android.R.drawable.ic_media_pause);
     }
@@ -263,6 +283,7 @@ public class PlayerActivity extends AppCompatActivity {
         @Override
         public void run() {
             while (playStatus < STOP) {
+                //Log.i("PlayerActivity","TimeThread================================="+player);
                 if(player != null) {
                     // 이 부분은 메인쓰레드에서 동작하도록 Runnable instance를 메인쓰레드에 던져준다
                     runOnUiThread(new Runnable() {

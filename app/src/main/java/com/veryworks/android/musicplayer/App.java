@@ -12,6 +12,8 @@ public class App {
 
     // 액션 플래그
     public static final String ACTION_PLAY = "com.kodonho.android.musicplayer.Action.Play";
+    public static final String ACTION_PAUSE = "com.kodonho.android.musicplayer.Action.Pause";
+    public static final String ACTION_RESTART = "com.kodonho.android.musicplayer.Action.Restart";
 
     // 플레이어 상태 플래그
     public static final int PLAY = 0;
